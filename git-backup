@@ -19,9 +19,9 @@ init () {
 }
 add () {
 	local file=$1
-	check_absolute $file || ( echo "Path must be absolute"; return 1)
-	[[ -f $file ]] || (echo "No such file"; return 2)
-	[[ -f $MIRROR_ROOT/$file ]] && ( echo "file already added";return 3 )
+	check_absolute $file || { echo "Path must be absolute"; return 1; }
+	[[ -f $file ]] || { echo "No such file"; return 2; }
+	[[ -f $MIRROR_ROOT/$file ]] && { echo "file already added";return 3; }
 	CP $file
 	git add $MIRROR_ROOT/$file
 	echo $file >> $FILES
@@ -31,8 +31,8 @@ update () {
 }
 rm () {
 	local file=$1
-	check_absolute $file || ( echo "Path must be absolute"; return 1)
-	[[ -f $MIRROR_ROOT/$file ]] ||( echo "file not added";return 2 )
+	check_absolute $file || { echo "Path must be absolute"; return 1; }
+	[[ -f $MIRROR_ROOT/$file ]] || { echo "file not added"; return 2; }
 	git rm $MIROR_ROOT/$file
 	sed -i 's/^${file}$//' $FILES
 }
