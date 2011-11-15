@@ -33,7 +33,7 @@ rm () {
 	local file=$1
 	check_absolute $file || { echo "Path must be absolute"; return 1; }
 	[[ -f $MIRROR_ROOT/$file ]] || { echo "file not added"; return 2; }
-	git rm $MIROR_ROOT/$file
+	git rm -f $MIRROR_ROOT/$file
 	sed -i 's/^${file}$//' $FILES
 }
 commit () {
