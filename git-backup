@@ -1,7 +1,15 @@
 #!/bin/bash
+set -x
 MIRROR_ROOT=$DEST_ROOT/mirror
-check_absolute() {
-	[[ $1 =~ ^/ ]]
+START_DIR=$PWD
+canonicalize () {
+	#Note:I want relative path be resolved but not symbol link
+	#This should work most time
+	if [[ $1 =~ ^/ ]] ; then
+		echo $1
+	else
+		echo $START_DIR/$1
+	fi
 }
 CP () {
 	local DIR=$(dirname $1)
@@ -12,7 +20,7 @@ list () {
 	git ls-files|grep "^mirror"|sed "s/^mirror//"
 }
 gen_meta_data () {
-	stat -c "%n %U %G %a" $(list)
+	stat -c "%n %U %G %a" $(list) > meta
 }
 init () {
 	git init
@@ -22,10 +30,9 @@ init () {
 	git commit -m "init"
 }
 add () {
-	local file=$1
-	check_absolute $file || { echo "Path must be absolute"; return 1; }
-	[[ -f $file ]] || { echo "No such file"; return 2; }
-	[[ -f $MIRROR_ROOT/$file ]] && { echo "file already added";return 3; }
+	local file=$(canonicalize $1)
+	[[ -f $file ]] || { echo "No such file"; return 1; }
+	[[ -f $MIRROR_ROOT/$file ]] && { echo "file already added";return 2; }
 	CP $file
 	git add $MIRROR_ROOT/$file
 }
@@ -36,9 +43,8 @@ restore () {
 	rsync -av --files-from=<(list) $MIRROR_ROOT /
 }
 rm () {
-	local file=$1
-	check_absolute $file || { echo "Path must be absolute"; return 1; }
-	[[ -f $MIRROR_ROOT/$file ]] || { echo "file not added"; return 2; }
+	local file=$(canonicalize $1)
+	[[ -f $MIRROR_ROOT/$file ]] || { echo "file not added"; return 1; }
 	git rm -f $MIRROR_ROOT/$file
 }
 commit () {
