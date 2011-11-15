@@ -9,6 +9,9 @@ CP () {
 	[[ -d $MIRROR_ROOT/$DIR ]] || mkdir -p $MIRROR_ROOT/$DIR
 	cp -p $1 $MIRROR_ROOT/$DIR
 }
+list () {
+	git ls-files|grep "^mirror"|sed "s/^mirror//"
+}
 init () {
 	git init
 	mkdir mirror
@@ -22,7 +25,7 @@ add () {
 	git add $MIRROR_ROOT/$file
 }
 update () {
-	rsync -av --files-from=<(git ls-files|sed "s/^mirror//") / $MIRROR_ROOT
+	rsync -av --files-from=<(list) / $MIRROR_ROOT
 }
 rm () {
 	local file=$1
@@ -33,4 +36,5 @@ rm () {
 commit () {
 	git commit -a
 }
+cd $ROOT
 $1 $2
