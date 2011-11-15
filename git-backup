@@ -31,11 +31,14 @@ init () {
 	git commit -m "init"
 }
 add () {
-	local file=$(canonicalize $1)
-	[[ -f $file ]] || { echo "No such file"; return 1; }
-	[[ -f $MIRROR_ROOT/$file ]] && { echo "file already added";return 2; }
-	mkdir_cp $file
-	git add $MIRROR_ROOT/$file
+	local file 
+	for file in $* ;do
+		local file=$(canonicalize $file)
+		[[ -f $file ]] || { echo "No such file"; return 1; }
+		[[ -f $MIRROR_ROOT/$file ]] && { echo "file already tracked"; }
+		mkdir_cp $file
+		git add $MIRROR_ROOT/$file
+	done
 }
 update () {
 	rsync -av --files-from=<(list_files) / $MIRROR_ROOT
@@ -45,9 +48,12 @@ restore () {
 	rsync -av --files-from=<(list_files) $MIRROR_ROOT /
 }
 rm () {
-	local file=$(canonicalize $1)
-	[[ -f $MIRROR_ROOT/$file ]] || { echo "file not added"; return 1; }
-	git rm -f $MIRROR_ROOT/$file
+	local file 
+	for file in $* ;do
+		local file=$(canonicalize $file)
+		[[ -f $MIRROR_ROOT/$file ]] || { echo "file not tracked"; return 1; }
+		git rm -f $MIRROR_ROOT/$file
+	done
 }
 commit () {
 	update
@@ -58,9 +64,11 @@ cd $DEST_ROOT || { echo DEST_ROOT not exists; exit 255; }
 case $1 in
 	init) init
 		;;
-	add) add $2
+	add) shift 
+		add $*
 		;;
-	rm) rm $2
+	rm) shift
+		rm $*
 		;;
 	update) update
 		;;
