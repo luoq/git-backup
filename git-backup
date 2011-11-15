@@ -16,11 +16,11 @@ CP () {
 	[[ -d $MIRROR_ROOT/$DIR ]] || mkdir -p $MIRROR_ROOT/$DIR
 	cp -p $1 $MIRROR_ROOT/$DIR
 }
-list () {
+list_files () {
 	git ls-files|grep "^mirror"|sed "s/^mirror//"
 }
-gen_meta_data () {
-	stat -c "%n %U %G %a" $(list) > meta
+print_meta_data () {
+	stat -c "%n %U %G %a" $(list_files)
 }
 init () {
 	git init
@@ -37,10 +37,11 @@ add () {
 	git add $MIRROR_ROOT/$file
 }
 update () {
-	rsync -av --files-from=<(list) / $MIRROR_ROOT
+	rsync -av --files-from=<(list_files) / $MIRROR_ROOT
+	print_meta_data > meta
 }
 restore () {
-	rsync -av --files-from=<(list) $MIRROR_ROOT /
+	rsync -av --files-from=<(list_files) $MIRROR_ROOT /
 }
 rm () {
 	local file=$(canonicalize $1)
@@ -49,8 +50,24 @@ rm () {
 }
 commit () {
 	update
-	gen_meta_data
 	git commit -a
 }
 cd $DEST_ROOT
-$1 $2
+case $1 in
+	init) init
+		;;
+	add) add $2
+		;;
+	rm) rm $2
+		;;
+	update) update
+		;;
+	commit) commit
+		;;
+	ls) list_files
+		;;
+	ll) cat meta
+		;;
+	*)
+		git $*
+esac
