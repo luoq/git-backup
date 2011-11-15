@@ -5,6 +5,11 @@ FILES=$ROOT/files.txt
 check_absolute() {
 	[[ $1 =~ ^/ ]]
 }
+CP () {
+	local DIR=$(dirname $1)
+	[[ -d $MIRROR_ROOT/$DIR ]] || mkdir -p $MIRROR_ROOT/$DIR
+	cp -p $1 $MIRROR_ROOT/$DIR
+}
 init () {
 	git init
 	mkdir mirror
@@ -13,11 +18,11 @@ init () {
 	git commit -m "Init"
 }
 add () {
-	file=$1
+	local file=$1
 	check_absolute $file || ( echo "Path must be absolute"; return 1)
 	[[ -f $file ]] || (echo "No such file"; return 2)
 	[[ -f $MIRROR_ROOT/$file ]] && ( echo "file already added";return 3 )
-	cp -p $file $MIRROR_ROOT/$file
+	CP $file
 	git add $MIRROR_ROOT/$file
 	echo $file >> $FILES
 }
@@ -25,7 +30,7 @@ update () {
 	rsync -av --files-from=$FILES $MIIRROR_ROOT
 }
 rm () {
-	file=$1
+	local file=$1
 	check_absolute $file || ( echo "Path must be absolute"; return 1)
 	[[ -f $MIRROR_ROOT/$file ]] ||( echo "file not added";return 2 )
 	git rm $MIROR_ROOT/$file
@@ -34,4 +39,4 @@ rm () {
 commit () {
 	git commit -a
 }
-$1
+$1 $2
