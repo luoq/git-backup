@@ -12,6 +12,9 @@ CP () {
 list () {
 	git ls-files|grep "^mirror"|sed "s/^mirror//"
 }
+meta-data () {
+	stat -c "%n %U %G %a" $(list)
+}
 init () {
 	git init
 	mkdir mirror
