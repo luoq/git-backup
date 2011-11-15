@@ -27,7 +27,7 @@ add () {
 	echo $file >> $FILES
 }
 update () {
-	rsync -av --files-from=$FILES $MIIRROR_ROOT
+	rsync -av --files-from=$FILES / $MIRROR_ROOT
 }
 rm () {
 	local file=$1
