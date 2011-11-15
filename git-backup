@@ -11,12 +11,15 @@ CP () {
 list () {
 	git ls-files|grep "^mirror"|sed "s/^mirror//"
 }
-meta-data () {
+gen_meta_data () {
 	stat -c "%n %U %G %a" $(list)
 }
 init () {
 	git init
 	mkdir mirror
+	touch meta
+	git add meta
+	git commit -m "init"
 }
 add () {
 	local file=$1
@@ -39,6 +42,8 @@ rm () {
 	git rm -f $MIRROR_ROOT/$file
 }
 commit () {
+	update
+	gen_meta_data
 	git commit -a
 }
 cd $DEST_ROOT
