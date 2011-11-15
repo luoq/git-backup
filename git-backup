@@ -34,3 +34,4 @@ rm () {
 commit () {
 	git commit -a
 }
+$1
