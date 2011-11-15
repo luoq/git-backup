@@ -1,6 +1,5 @@
 #!/bin/bash
-ROOT=.
-MIRROR_ROOT=$ROOT/mirror
+MIRROR_ROOT=$DEST_ROOT/mirror
 check_absolute() {
 	[[ $1 =~ ^/ ]]
 }
@@ -30,6 +29,9 @@ add () {
 update () {
 	rsync -av --files-from=<(list) / $MIRROR_ROOT
 }
+restore () {
+	rsync -av --files-from=<(list) $MIRROR_ROOT /
+}
 rm () {
 	local file=$1
 	check_absolute $file || { echo "Path must be absolute"; return 1; }
@@ -39,5 +41,5 @@ rm () {
 commit () {
 	git commit -a
 }
-cd $ROOT
+cd $DEST_ROOT
 $1 $2
