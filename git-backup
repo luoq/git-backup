@@ -1,0 +1,36 @@
+#!/bin/bash
+ROOT=.
+MIRROR_ROOT=$ROOT/mirror
+FILES=$ROOT/files.txt
+check_absolute() {
+	[[ $1 =~ ^/ ]]
+}
+init () {
+	git init
+	mkdir mirror
+	touch files.txt
+	git add files.txt
+	git commit -m "Init"
+}
+add () {
+	file=$1
+	check_absolute $file || ( echo "Path must be absolute"; return 1)
+	[[ -f $file ]] || (echo "No such file"; return 2)
+	[[ -f $MIRROR_ROOT/$file ]] && ( echo "file already added";return 3 )
+	cp -p $file $MIRROR_ROOT/$file
+	git add $MIRROR_ROOT/$file
+	echo $file >> $FILES
+}
+update () {
+	rsync -av --files-from=$FILES $MIIRROR_ROOT
+}
+rm () {
+	file=$1
+	check_absolute $file || ( echo "Path must be absolute"; return 1)
+	[[ -f $MIRROR_ROOT/$file ]] ||( echo "file not added";return 2 )
+	git rm $MIROR_ROOT/$file
+	sed -i 's/^${file}$//' $FILES
+}
+commit () {
+	git commit -a
+}
