@@ -79,6 +79,8 @@ case $1 in
 	ll) update
 		cat meta
 		;;
+	gitk) gitk
+		;;
 	*)
 		git $*
 esac
