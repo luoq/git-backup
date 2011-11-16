@@ -81,6 +81,8 @@ case $1 in
 		;;
 	gitk) gitk
 		;;
+	restore) restore
+		;;
 	*)
 		git $*
 esac
