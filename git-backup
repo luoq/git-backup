@@ -44,9 +44,6 @@ update () {
 	rsync -av --files-from=<(list_files) / $MIRROR_ROOT
 	print_meta_data > meta
 }
-restore () {
-	rsync -av --files-from=<(list_files) $MIRROR_ROOT /
-}
 rm () {
 	local file 
 	for file in $* ;do
@@ -80,8 +77,6 @@ case $1 in
 		cat meta
 		;;
 	gitk) gitk
-		;;
-	restore) restore
 		;;
 	*)
 		git $*
