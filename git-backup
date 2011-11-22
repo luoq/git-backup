@@ -18,15 +18,13 @@ mkdir_cp () {
 list_files () {
 	git ls-files|grep "^mirror"|sed "s/^mirror//"
 }
-print_meta_data () {
-	stat -c "%n %U %G %a" $(list_files)
-}
+#print_meta_data () {
+#	stat -c "%n %U %G %a" $(list_files)
+#}
 init () {
 	git init
 	mkdir mirror
-	touch meta
 	touch THIS_IS_A_GIT_BACKUP_REPO
-	git add meta
 	git add THIS_IS_A_GIT_BACKUP_REPO
 	git commit -m "init"
 }
@@ -42,7 +40,6 @@ add () {
 }
 update () {
 	rsync -av --files-from=<(list_files) / $MIRROR_ROOT
-	print_meta_data > meta
 }
 rm () {
 	local file 
@@ -72,9 +69,6 @@ case $1 in
 	commit) commit
 		;;
 	ls) list_files
-		;;
-	ll) update
-		cat meta
 		;;
 	gitk) gitk
 		;;
